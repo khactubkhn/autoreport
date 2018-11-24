@@ -16,6 +16,9 @@ $(document).ready(function(){
 			var code = response.code;
 			if(code == 0){
 				listRoom = response.data;
+				listRoom.sort(function(a,b){
+					return - (a["active"] - b["active"]); 
+				});
 				console.log("Success");
 				loadData();
 			}else {
@@ -40,6 +43,7 @@ getCookiebyName = function(name){
 
 
 loadData = function(){
+	$('#listRoom').children().remove().end(); 
 	// bind data to listmeetingroom
 	for (var i = 0; i < listRoom.length; i++) {
 		var id = listRoom[i].id;
@@ -49,15 +53,15 @@ loadData = function(){
 		var roles = listRoom[i].roles;
 		var lstRolesName = [];
 		var active = listRoom[i].active;
-		for (var i = 0; i < roles.length; i++) {
-			lstRolesName.push(roles[i].name);
+		for (var j = 0; j < roles.length; j++) {
+			lstRolesName.push(roles[j].name);
 		}
 		addMettingRoom(id,number,time,name, JSON.stringify(lstRolesName),active);
 	}
 }
 
 getTimeShow = function(time){
- 	
+
 	var day = addZero(time.getDate());
 	var month = addZero(time.getMonth()+1);
 	var year = addZero(time.getFullYear());
@@ -65,9 +69,9 @@ getTimeShow = function(time){
 	var m = addZero(time.getMinutes());
 	var s = addZero(time.getSeconds());
 	return day + ". " + month + ". " + year + " (" + h + ":" + m + ":" + s +")";
- }
+}
 
- function addZero(i) {
+function addZero(i) {
 	if (i < 10) {
 		i = "0" + i;
 	}
@@ -87,6 +91,10 @@ searchRoom= function(){
 addMettingRoom = function(idroom, numberOfUser, time, name, roles, active){
 
 	var roomElement = document.createElement('li');
+	if (active == 1) {
+		roomElement.style['background-color'] = 'cornflowerblue';
+		roomElement.style['color'] = 'white';
+	}
 	roomElement.setAttribute("onclick","navigateToDetail("+ active+"," +idroom+","+roles+")");
 	var idMeetingRoomLi = "li_mr_" + idroom;
 	roomElement.setAttribute("id",idMeetingRoomLi);
@@ -180,12 +188,30 @@ joinMeeting = function(){
 			dataType: 'json',
 			data: JSON.stringify(objectReq),
 			success: function(response){
-
+				var code = response.code;
 				if(code == 0){
 					console.log("Success");
-					var roomid = response.data.id;
-					var url = "meeting?roomID="+ roomid;
-					window.location.replace(url);
+					$('#popJoinMeeting').modal().hide();
+					$.ajax({
+						url:'/api/room/joined',
+						type:'get',
+						success: function(response){
+							var code = response.code;
+							if(code == 0){
+								listRoom = response.data;
+								listRoom.sort(function(a,b){
+									return - (a["active"] - b["active"]); 
+								});
+								console.log("Success");
+								loadData();
+							}else {
+								console.log("Faild");
+							}
+						},
+						error: function () {
+							console.log("Server error");
+						}
+					});
 				}else {
 					console.log("Faild");
 				}

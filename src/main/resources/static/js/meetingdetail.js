@@ -17,6 +17,9 @@ $(document).ready(function(){
 				$('#meeting_name').text(response.data.name);
 				var time = new Date(response.data.createdDTG);
 				$('#meeting_time').text(getTimeShow(time));
+
+				var timeEnd = new Date(response.data.updatedDTG);
+				$('#meeting_time_end').text(getTimeShow(timeEnd));
 				console.log("Success");
 				loadData();
 			}else {

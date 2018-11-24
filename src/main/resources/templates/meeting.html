@@ -21,17 +21,18 @@ xmlns:th="http://www.thymeleaf.org">
 </head>
 <body>
 	<div class="wraper">
+		<div class="wraper">
 		<div class="header" style="padding-top: 1px; height: 78px;">
 			<h4
 			style="text-align: center;font-weight: bold; color: blue;">RECORDING MEETING SYSTEM</h4>
 			<div class="divlogout" style="float: right; padding-right: 15px;">
-				Xin chào: <span id="spFullName"></span>
+				Xin chào:<a href="/userinformation"  id="spFullName"></a>
 				<button type="button" class="btn btn-primary" onclick="logout()" style="display: inline;" title="Đăng xuất">
 					<i class="fa fa-sign-out" aria-hidden="true"></i>
 				</button>
 			</div>
-
-		</div>
+		
+	</div>
 		<div class="content">
 			<div class="content_left">
 				<div class="meeting_infor" style="padding: 12px;">
@@ -46,26 +47,39 @@ xmlns:th="http://www.thymeleaf.org">
 				<div class="sending">
 					<input type="hidden" id="hidSpeakerID">
 					<input type="hidden" id="hidFullName">
+					<button id="btn_start" class="btn_time" style="color: green; display: none;" onclick="showEndTime()">
+						<i class="fa fa-play" aria-hidden="true"></i>
+					</button>
+					<button id="btn_end"  class="btn_time" style="color: red; display: none;" onclick="showStartTime()">
+						<i class="fa fa-window-close" aria-hidden="true"></i>
+					</button>
 					<input type="text"  id ="message" disabled="disabled" class="form-control"  
-					placeholder="Type a message ..." style="width: 90%;display: inline-block; padding: 20px;">
+					placeholder="Type a message ..." style="width: 70%;display: inline-block; padding: 20px;">
+					
 					<button id="btn_send" class="btn btn-primary" style="width: 9%; font-size: 20px;" onclick="sendMessage()">
 						<i class="fa fa-paper-plane" aria-hidden="true"></i>
+					</button>
+					<button id="btn_send" class="btn btn-primary" style="width: 9%; font-size: 20px;" onclick="sendMessage()">
+						<i class="fa fa-upload" aria-hidden="true"></i>
 					</button>
 				</div>
 			</div>
 			<div class="content_right">
 				<div class="btn_function_area">
 					<div class="function" style="text-align: center; margin-top: 12px;">
-						<button type="button" id="addUser" class="btn btn-primary" style="width: 23%" data-toggle="modal" data-target="#popAddNewMeeting" onclick="loadData2Popup()" title="Thêm người dùng">
+						<button type="button" id="addUser" class="btn btn-primary" style="width: 19%" data-toggle="modal" data-target="#popAddNewMeeting" onclick="loadData2Popup()" title="Thêm người dùng">
 							<i class="fa fa-user-plus" aria-hidden="true"></i>
 						</button>
-						<button type="button"  id="removeUser" class="btn btn-danger" style="width: 23%" data-toggle="modal" data-target="#popRemoveMember" onclick="loadData2PopupRemove()" title="Xóa ngươi dùng">
+						<button type="button"  id="removeUser" class="btn btn-danger" style="width: 19%" data-toggle="modal" data-target="#popRemoveMember" onclick="loadData2PopupRemove()" title="Xóa ngươi dùng">
 							<i class="fa fa-ban" aria-hidden="true"></i>
 						</button>
-						<button type="button" class="btn btn-infor" style="width: 23%" data-toggle="modal" data-target="#popShareCode" title="Share mã code" onclick="loadPermission2PopupShareCode()">
+						<button type="button" id="btn_share_code" class="btn btn-infor" style="width: 19%" data-toggle="modal" data-target="#popShareCode" title="Share mã code" onclick="loadPermission2PopupShareCode()">
 							<i class="fa fa-share" aria-hidden="true"></i>
 						</button>
-						<button type="button" class="btn btn-success" style="width: 23%" title="Kết thúc cuộc họp" onclick="finishMeeting()"><i class="fa fa-times-circle" aria-hidden="true"></i></button>
+						<button type="button" id="btn_finish_room" class="btn btn-success" style="width: 19%" title="Kết thúc cuộc họp" onclick="finishMeeting()">
+							<i class="fa fa-times-circle" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-danger" style="width: 19%" title="Quay về trang chủ" onclick="gotoHome()">
+							<i class="fa fa-backward" aria-hidden="true"></i>
 					</div>
 				</div>
 				<div class="lst_user">

@@ -24,7 +24,8 @@ liSpeakerClick =  function(){
 		var fullName = lstChildren[1].value;
 		$("#hidSpeakerID").val(speakerID);
 		$("#hidFullName").val(fullName);
-		$("#message").removeAttr('disabled');
+		
+		$("#btn_start").css("display","inline");
 		if($("#message").val().trim().length < 0){
 			sendMessage();
 		}
@@ -112,6 +113,7 @@ $("#message").keyup(function(event){
 });
 
 addPermissionSelectBox = function(value, name){
+
 	var perOptionElement = document.createElement('option');
 	perOptionElement.setAttribute("value",value);
 	var perTextNode = document.createTextNode(name);
@@ -133,6 +135,8 @@ addReporterSelectBox = function(userid, firstname, lastname, username){
 
 // load du lieu len popup them nguoi
 loadData2Popup = function(){
+	$('#selectreporterpermission').children().remove().end(); 
+	$('#selectreporter').children().remove().end();
 	for (var i = 0; i < roleRooms.length; i++) {
 		addPermissionSelectBox(roleRooms[i].value, roleRooms[i].name);
 	}
@@ -259,7 +263,10 @@ getRoomContent = function(){
 					var lastname =  content.speaker.lastName;
 					var starttime = getTimeShow(new Date(content.startTime));
 					var endtime = getTimeShow(new Date(content.endTime));
-					reciveMessage(message,firstname,lastname,starttime,endtime);
+					var rpFirstName = content.reporter.firstName;
+					var rpLastName = content.reporter.lastName;
+					var rpUserName = content.reporter.userName;
+					reciveMessage(message,firstname,lastname,starttime,endtime,rpFirstName,rpLastName,rpUserName);
 				}
 
 			}else {
@@ -383,7 +390,7 @@ lstUserIDRemoved= [];
  }
 
  loadData2PopupRemove= function(){
- 	var roomID = GetURLParameter("roomID");
+ 	var roomID = parseInt(GetURLParameter("roomID"));
  	var url = "/api/room/"+roomID;
  	$.ajax({
  		url:url,
@@ -394,6 +401,7 @@ lstUserIDRemoved= [];
  			var code = response.code;
  			if(code == 0){
  				console.log("Success");
+
  				loadData2LstUserRemove(response.data.members);
  			}else {
  				console.log("Faild");
@@ -406,14 +414,19 @@ lstUserIDRemoved= [];
  }
 
  loadData2LstUserRemove = function(lstuser){
+ 	var userName = getCookiebyName("username");
+ 	$('#lstUserExist').children().remove().end(); 
  	for(var i = 0; i<lstuser.length; i++){
  		var member = lstuser[i];
+ 		if (userName == member.username) {
+ 			continue;
+ 		}
  		addUserRemoved(member.userId, member.firstName, member.lastName, member.username);
  	}
  }
 
  RemoveUsers = function(){
- 	var roomID = GetURLParameter("roomID");
+ 	var roomID = parseInt(GetURLParameter("roomID"));
  	if(lstUserIDRemoved.length > 0){
  		var dataRq = {roomId:roomID,members:lstUserIDRemoved};
  		$.ajax({
@@ -426,6 +439,7 @@ lstUserIDRemoved= [];
  				var code = response.code;
  				if(code == 0){
  					console.log("Success");
+ 					window.location.replace('/meeting?roomID='+roomID);
  				}else {
  					console.log("Faild");
  				}
@@ -526,6 +540,13 @@ lstUserIDRemoved= [];
  					var item = lstReporter[i];
  					appendReporterToList(item.firstName, item.lastName, item.username);
  				}
+
+ 				var own = response.data.own.username;
+ 				var usrname_login = getCookiebyName("username");
+ 				if(own != usrname_login){
+ 					$("#btn_finish_room").css("display","none");
+ 				}
+
  				liSpeakerClick();
  			}else {
  				console.log("Error trong get thong tin room theo roomid");
@@ -605,7 +626,26 @@ function onError(error) {
 	alert("Không thể kết nối với server, vui lòng refresh trang để thử lại");
 }
 
+// thoi gian bat dau va ket thuc loi noi cua mot nguoi
+var startTimeSpeaker = 0;
+var endTimeSpeaker = 0; 
+
+showEndTime = function(){
+	startTimeSpeaker = new Date().getTime();
+	$("#btn_start").css("display","none");
+	$("#btn_end").css("display","inline");
+
+}
+
+showStartTime = function(){
+	endTimeSpeaker = new Date().getTime();
+	$("#btn_end").css("display","none");
+	$("#message").removeAttr('disabled');
+}
+
 function sendMessage() {
+	$("#btn_start").css("display","inline");
+	$("#message").attr("disabled", true)
 	var speakerID = parseInt($("#hidSpeakerID").val());
 	var roomID = parseInt(GetURLParameter("roomID"));
 	var content = $("#message").val().trim();
@@ -616,8 +656,8 @@ function sendMessage() {
 				roomId: roomID,
 				speakerId: speakerID,
 				content: content,
-				startTime: new Date().getTime(),
-				endTime: new Date().getTime() + 3600
+				startTime: startTimeSpeaker,
+				endTime: endTimeSpeaker
 			},
 			type: 'CHAT'
 		};
@@ -637,11 +677,14 @@ function onMessageReceived(payload) {
 		var content = message.data.content;
 		var starttime = getTimeShow(new Date (message.data.startTime));
 		var endtime = getTimeShow(new Date (message.data.endTime));
-		reciveMessage(content,firstname_spk, lastname_spk, starttime, endtime);  
+		var rpFirstName = reporter.firstName;
+		var rpLastName = reporter.lastName;
+		var rpUserName = reporter.userName;
+		reciveMessage(content,firstname_spk, lastname_spk, starttime, endtime,rpFirstName,rpLastName,rpUserName);  
 	} 
 }
 
-reciveMessage = function(message, firstname, lastname, starttime, endtime){
+reciveMessage = function(message, firstname, lastname, starttime, endtime, rpFirstName, rpLastName, rpUserName){
 	
 	if (message.trim().length > 0) {
 		var fullName = firstname +" " + lastname;
@@ -664,12 +707,23 @@ reciveMessage = function(message, firstname, lastname, starttime, endtime){
 		usernameElement.appendChild(usernameText);
 		usernameElement.style['font-weight'] = 'bold';
 		messageElement.appendChild(usernameElement);
+
 		var timeElement= document.createElement('span');
 		var timeText = document.createTextNode(currentDate);
 		timeElement.appendChild(timeText);
 		timeElement.style['margin-left'] ='25px';
 		timeElement.style['font-style'] ='italic';
+
+		var reporterElement = document.createElement('span');
+		reporterElement.style['margin-left'] ='20px';
+		reporterElement.style['font-weight'] ='700';
+		var nameRpt = "[" + rpFirstName +" "+ rpLastName +" - " + rpUserName +"]";
+		var reporterText = document.createTextNode(nameRpt);
+		reporterElement.appendChild(reporterText);
+
+
 		messageElement.appendChild(timeElement);
+		messageElement.appendChild(reporterElement);
 		var textElement = document.createElement('p');
 		var messageText = document.createTextNode(message);
 		textElement.appendChild(messageText);
@@ -684,6 +738,10 @@ reciveMessage = function(message, firstname, lastname, starttime, endtime){
 setPersmisson = function(){
 	$("#addUser").addClass("displayhidden");
 	$("#addUser").addClass("per_ADD_MEMBER");
+
+	$("#btn_share_code").addClass("displayhidden");
+	$("#btn_share_code").addClass("per_ADD_MEMBER");
+	
 	$("#removeUser").addClass("displayhidden");
 	$("#removeUser").addClass("per_DELETE_MEMBER");
 	$("#message").addClass("displayhidden");
@@ -708,22 +766,22 @@ appendSpeakerToList  = function(firstname, lastname, speakerid){
 	spNameElement.setAttribute("value",firstname +" " + lastname);
 	speakerElement.appendChild(spNameElement);
 	var avatarElementA = document.createElement("a");
-	avatarElementA.setAttribute("onclick","liSpeakerClick("+firstname+" " +lastname+"," +speakerid +")");
-	avatarElementA.setAttribute("href","#");
-	var avatarElement = document.createElement("i");
-	avatarElement.style['background-color'] = getAvatarColor(firstname +" "+lastname);
-	var avatarText  = document.createTextNode(lastname[0]);
-	avatarElement.appendChild(avatarText);
-	avatarElementA.appendChild(avatarElement);
-	speakerElement.appendChild(avatarElementA);
-	var nameDisplay =document.createElement("span");
-	nameDisplay.classList.add("style_name");
-	var nameText = document.createTextNode(firstname +" " + lastname);
-	nameDisplay.appendChild(nameText);
-	speakerElement.appendChild(nameDisplay);
-	var ulSpeaker = document.querySelector('#speaker');
-	ulSpeaker.appendChild(speakerElement);
-	speakerElement.scrollTop = speakerElement.scrollHeight;
+//	avatarElementA.setAttribute("onclick","liSpeakerClick("+firstname+" " +lastname+"," +speakerid +")");
+avatarElementA.setAttribute("href","#");
+var avatarElement = document.createElement("i");
+avatarElement.style['background-color'] = getAvatarColor(firstname +" "+lastname);
+var avatarText  = document.createTextNode(lastname[0]);
+avatarElement.appendChild(avatarText);
+avatarElementA.appendChild(avatarElement);
+speakerElement.appendChild(avatarElementA);
+var nameDisplay =document.createElement("span");
+nameDisplay.classList.add("style_name");
+var nameText = document.createTextNode(firstname +" " + lastname);
+nameDisplay.appendChild(nameText);
+speakerElement.appendChild(nameDisplay);
+var ulSpeaker = document.querySelector('#speaker');
+ulSpeaker.appendChild(speakerElement);
+speakerElement.scrollTop = speakerElement.scrollHeight;
 
 }
 
@@ -748,3 +806,6 @@ appendReporterToList = function(firstname, lastname, username){
 	reporterElement.scrollTop = reporterElement.scrollHeight;
 }
 
+gotoHome = function(){
+	window.location.replace("/default");
+}

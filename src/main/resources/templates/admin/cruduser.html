@@ -13,128 +13,197 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 	<div class="wraper">
-		<div class="header">
-			<h3
-				style="text-align: center; padding: 10px; font-weight: bold; color: blue;">
-				RECORDING MEETING SYSTEM</h3>
-		</div>
+		<div class="header" style="padding-top: 1px; height: 78px;">
+			<h4
+			style="text-align: center;font-weight: bold; color: blue;">RECORDING MEETING SYSTEM</h4>
+			<div class="divlogout" style="float: right; padding-right: 15px;">
+				Xin chào:<a href="/userinformation"  id="spFullName"></a>
+				<button type="button" class="btn btn-primary" onclick="logout()" style="display: inline;" title="Đăng xuất">
+					<i class="fa fa-sign-out" aria-hidden="true"></i>
+				</button>
+			</div>
 		
+	</div>
+
 		<div class="content">
 			<div class="search" style="text-align: center;">
-				<input type='text' class='form-control' placeholder='Nhập vào tên hoặc mã để tìm kiếm' id='ip_search' style='width: 300px; display: inline-block;'>
-				<button class="btn btn-primary">
-					<i class="fa fa-search" aria-hidden="true">
-						Tìm kiếm
-					</i>
-				</button>	
+				<input type='text' class='form-control'
+					placeholder='Nhập vào tên hoặc mã để tìm kiếm' id='ip_search'
+					style='width: 300px; display: inline-block;'>
+				<button class="btn btn-primary" onclick="search()">
+					<i class="fa fa-search" aria-hidden="true"> Tìm kiếm </i>
+				</button>
 			</div>
 			<div class="data_table">
-				<input type="button" value='Add' class='btn btn-success' data-toggle="modal" data-target="#formadd">
+				<input type="button" value='Add' class='btn btn-success'
+					data-toggle="modal" data-target="#formadd">
 				<div style='overflow: auto;'>
-				
-					
-					<table id="data_table" class='table-striped' style='margin-top: 10px; width: 100%'>
+
+
+					<table id="data_table" class='table-striped'
+						style='margin-top: 10px; width: 100%'>
 						<tr>
 							<th>STT</th>
-							<th>Tài khoản</th>
 							<th>Họ và tên</th>
-							<th>Ngày sinh</th>
 							<th>Số điện thoại</th>
-							<th>Số CMND</th>
-							<th>Địa chỉ</th>
-							<th>Mật khẩu</th>
-							<th> </th>
-							<th> </th>			
+							<th>Tài khoản</th>
+							<th></th>
+							<th></th>
 						</tr>
 					</table>
-					
+
 					<!-- Phân trang -->
 					<div class='phantrang' style='text-align: center;'>
 						<ul class="pagination" id='phantrang'>
-						
-							<li class="page-item">
-						      <a class="page-link"  aria-label="Previous" onclick='previous()' style='cursor:pointer;'>
-						        <span aria-hidden="true">&laquo;</span>
-						        <span class="sr-only">Previous</span>
-						      </a>
-						    </li>
-					    </ul>
+
+							<li class="page-item"><a class="page-link"
+								aria-label="Previous" onclick='previous()'
+								style='cursor: pointer;'> <span aria-hidden="true">&laquo;</span>
+									<span class="sr-only">Previous</span>
+							</a></li>
+						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
-		
-		
-		<div class="footer" style="text-align: center; padding-top: 5px; color: blue;">
-			<h4>Hệ thống ghi biển bản cuộc họp. Phát triển bởi nhóm DSD_09</h4>
+
+
+		<div class="footer"
+			style="text-align: center; padding-top: 5px; color: blue;">
+			<h4>Hệ thống ghi biên bản cuộc họp. Phát triển bởi nhóm DSD_09</h4>
 		</div>
-			<script type="text/javascript" th:src="@{/js/meeting.js}"></script>
-			
-			<!-- modal Thêm tài khoản -->
-    
-	 <div class="modal fade" id="formadd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<script type="text/javascript" th:src="@{/js/cruduser.js}"></script>
+		<script type="text/javascript" th:src="@{/js/register.js}"></script>
+		<script type="text/javascript" th:src="@{/js/logout.js}"></script>
+
+		<!-- modal Thêm tài khoản -->
+
+		<div class="modal fade" id="formadd" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document" style='color: black;'>
+				<div class="modal-content">
+					<div class="modal-header" style='text-align: center;'>
+						<h3 class="modal-title" id="exampleModalLabel"
+							style="display: inline-block;">Thông tin tài khoản</h3>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body" id="body_themtaikhoan">
+						<form action="javascript:void(0);" method="post" name="user"
+							id='submit_register'>
+
+							<div class="form-group">
+								<label for="ip_firstname">First Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_firstname"
+									name='firstname' placeholder="Nhập vào Họ và tên đệm"
+									maxlength="256"> <small id="status_firstname"
+									class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+
+							<div class="form-group">
+								<label for="ip_lastname">Last Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_lastname"
+									name='lastname' placeholder="Nhập vào Tên" maxlength="256">
+								<small id="status_lastname"
+									class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+
+							<div class="form-group">
+								<label for="ip_phone">Phone Number</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_phone" name='sdt'
+									placeholder="Nhập vào số điện thoại" maxlength="11"> <small
+									id="status_phone" class="form-text text-muted status_error"
+									style="color: red;"></small>
+							</div>
+
+							<div class="form-group">
+								<label for="ip_username">User Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_username"
+									name='username' placeholder="Nhập vào tên đăng nhập"
+									maxlength="10"> <input type="hidden"
+									id="statusUsername" value="" /> <small id="status_username"
+									class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+
+							<div class="form-group">
+								<label for="ip_password">PassWord</label><span class="star">*</span>
+								<input type="password" class="form-control" id="ip_password"
+									name='password' placeholder="Nhập vào mật khẩu" maxlength="45">
+								<small id="status_password"
+									class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+
+							<div class="form-group">
+								<label for="ip_repassword">Confirm PassWord</label><span
+									class="star">*</span> <input type="password"
+									class="form-control" id="ip_repassword"
+									placeholder="Nhập lại mật khẩu" maxlength="45"> <small
+									id="status_repassword"
+									class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+
+							<button type="submit" class="btn btn-primary"
+								onclick="registrationCRUD()">Thêm</button>
+							<h4 id="registration_message" style="text-align: center;"></h4>
+
+						</form>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="formedit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" role="document" style='color: black;'>
 	    <div class="modal-content">
 	      <div class="modal-header" style='text-align: center;'>
-	        <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Thông tin tài khoản</h3>
+	        <h3 class="modal-title" id="exampleModalLabel" >Sửa thông tin tài khoản</h3>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	          <span aria-hidden="true">&times;</span>
 	        </button>
 	      </div>
-	      <div class="modal-body" id="body_themtaikhoan">
-	      <form action='adminAddTaiKhoan' method="post" name="user" id='submit_register'>
-			  <div class="form-group">
-			    <label for="ip_hoten">Họ và tên</label>
-			    <input type="text" class="form-control" id="ip_hoten"  name='ten' aria-describedby="emailHelp" placeholder="Nhập vào họ và tên">
-			  	<small id="status_hoten" class="form-text text-muted" style='color: red;'></small>
-			 	<input type="hidden" class="form-control" id="dangnhaphidden">
-			  </div>
-			  
-			   <div class="form-group">
-			    <label>Username:</label> <span id='ip_username'></span><br>
-			    <small id="status_username" class="form-text text-muted" style='color: red;'></small>
-			  </div>
-			  
-			  <div class="form-group">
-			    <label for="ip_ngaysinh">Ngày sinh</label>
-			    <input type="date" class="form-control" id="ip_ngaysinh" name = 'ngaysinh' placeholder="Nhập vào ngày sinh">
-			    <small id="status_ngaysinh" class="form-text text-muted" style='color: red;'></small>
-			  </div>
-			  
-			   <div class="form-group">
-			    <label for="ip_sdt">Số điện thoại</label>
-			    <input type="text" class="form-control" id="ip_sdt" name='sdt' placeholder="Nhập vào số điện thoại" maxlength="11">
-			    <small id="status_sdt" class="form-text text-muted" style='color: red;'></small>
-			  </div>
-			  
-			  <div class="form-group">
-			    <label for="ip_cmnn">Số CMNN</label>
-			    <input type="text" class="form-control" id="ip_cmnd" name='cmnn' placeholder="Nhập vào số chứng minh nhân dân" maxlength="10">
-			    <small id="status_cmnd" class="form-text text-muted" style='color: red;'></small>
-			  </div>
-			  
-			  <div class="form-group">
-			    <label for="ip_diachi">Địa chỉ</label>
-			    <input type="text" class="form-control" id="ip_diachi" name='diachi' placeholder="Nhập vào địa chỉ">
-			    <small id="status_diachi" class="form-text text-muted" style='color: red;'></small>
-			  </div>
-			 
-			 <button type="button" class="btn btn-primary" onclick='dangkytaikhoan()'>Save</button>
-			 
-		</form>
-	      
+	      <div class="modal-body" id="body_themtacgiaedit" >
+	      		
+	      	<form action="javascript:void(0);" id ='editform' method="post" enctype="multipart/form-data">
+	      		<b>Username:</b><br>
+	      		<h5 id='lb_username_edit'></h5>
+	      		<input type="hidden" class='form-control' id = 'ip_userid_edit' > 
+	      		
+	      		<b>FirstName:</b>
+				<input type="text" class='form-control' id = 'ip_firstname_edit'  placeholder="Nhập vào họ và tên đệm">
+			
+				
+				<b>LastName:</b>
+				<input type="text" class='form-control' id = 'ip_lastname_edit'  placeholder="Nhập vào tên">
+
+				<b>Số điện thoại:</b>
+				<input type="text" class='form-control' id = 'ip_phone_edit'  placeholder="Nhập vào tên">
+				
+				<input type="button" value="Cập nhật thông tin" class='btn btn-success' style='margin-top: 15px;'>
+	      		
+			</form>
+		
+				
 	      </div>
 	      <div class="modal-footer">
-	      	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      	<button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
+	      
 	      </div>
 	    </div>
 	  </div>
 	</div>
-</div>
 
 </body>
 </html>

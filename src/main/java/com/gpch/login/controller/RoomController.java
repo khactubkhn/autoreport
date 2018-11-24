@@ -368,7 +368,7 @@ public class RoomController {
     	} else {
     		result.put("code", 0);
     		result.put("message", HttpStatus.OK.name());
-    		result.put("data", roomService.getReporters(Integer.valueOf(roomId), user.getId()));
+    		result.put("data", roomService.getReporters1(Integer.valueOf(roomId), user.getId()));
             return result;
     	}
     	

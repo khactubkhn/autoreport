@@ -24,7 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "room_content")
-public class RoomContent implements Serializable{
+public class RoomContent implements Serializable, Comparable<RoomContent>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -140,6 +140,20 @@ public class RoomContent implements Serializable{
 
 	public void setUpdatedDTG(Timestamp updatedDTG) {
 		this.updatedDTG = updatedDTG;
+	}
+
+	@Override
+	public int compareTo(RoomContent o) {
+		if(this.speakerId == o.getSpeakerId()) {
+			if(this.start.getTime() == o.getStart().getTime()) {
+				return 0;
+			}else if(this.start.getTime() > o.getStart().getTime()) {
+				return 1;
+			}else return -1;
+		}else if(this.speakerId > o.getSpeakerId()) {
+			return 1;
+		}else 
+			return -1;
 	}
     
 }

@@ -32,25 +32,23 @@
 			<div class="row">
 			<div class="col-md-3 col-xs-12">
 				<div id="image_user" style="background-color: #fff; height: 200px; width:200px;padding: 47px;">
-					<i style="background-color: rgb(255, 152, 0);">T</i>
+					<i id="avatar_text">T</i>
 					<br>
-					<span style="font-size: 20px; font-weight: bold;">Thang.ND</span>
+					<span style="font-size: 20px; font-weight: bold;" id="avatar_name"></span>
 				</div>
 			</div>
 			
 			<div class="col-md-9 col-xs-12"  style="background-color: #fff; border-radius: 10px; padding-bottom: 20px;">
 				<h2 style="text-align: center;">Thông tin cá nhân</h2>
-				<form action="capnhattcanhan" method="post" enctype="multipart/form-data">
-				<b>Họ và tên:</b> <span id='hoten'>Nguyễn Đình Thắng</span><br><br>
-				<input type='hidden' name='username' value='${sessionScope.username}'> 
-				<b>Ngày sinh:</b> <span id='ngaysinh'>22/05/1996</span><br><br>
-				<b>Số điện thoại: </b><input type="text" class='form-control' id = 'ip_sdt' name="sdt" placeholder="Nhập vào số điện thoại" onkeypress=' return input_keypress()'> <br>
-				<b>Địa chỉ: </b><input type="text" class='form-control' id = 'ip_diachi' name="diachi" placeholder="Nhập vào địa chỉ"><br>
-				<b>Mật khẩu cũ: </b><input type="password" id = 'ip_mkcu'class='form-control' placeholder="Nhập vào mật khẩu cũ"><br>
-				<input type="hidden" id="hidden_mk">
-				<b>Mật khẩu mới: </b><input type="password" id='ip_mkmoi' class='form-control' name="matkhau" placeholder="Nhập vào mật khẩu mới, ít nhất 8 kí tự" title ='Mật khẩu mới phải ít nhất 8 kí tự'><br>
-				<b>Nhập lại mật khẩu: </b><input type="password" id ='ip_nlmk' class='form-control' name="rematkhau" placeholder="Nhập lại mật khẩu"><br>
-				<input type="submit" value="Cập nhật thông tin cá nhân" class='btn btn-success' style='margin-top: 15px;'>
+				<form action="javascript:void(0);" method="post" enctype="multipart/form-data">
+					<b>Họ và tên:</b> <span id='hoten'></span><br><br>
+					<input type="hidden" id="hid_id">
+					<b>UserName:</b> <span id='username'></span><br><br>
+					<b>Số điện thoại: </b><input type="text" class='form-control' id = 'ip_sdt' name="sdt" placeholder="Nhập vào số điện thoại" onkeypress=' return input_keypress()'> <br>
+					<b>Mật khẩu cũ: </b><input type="password" id = 'ip_mkcu'class='form-control' placeholder="Nhập vào mật khẩu cũ"><br>
+					<b>Mật khẩu mới: </b><input type="password" id='ip_mkmoi' class='form-control' name="matkhau" placeholder="Nhập vào mật khẩu mới, ít nhất 8 kí tự" title ='Mật khẩu mới phải ít nhất 8 kí tự'><br>
+					<b>Nhập lại mật khẩu: </b><input type="password" id ='ip_nlmk' class='form-control' name="rematkhau" placeholder="Nhập lại mật khẩu"><br>
+					<input type="submit" value="Cập nhật thông tin cá nhân" class='btn btn-success' style='margin-top: 15px;'>
 			   </form>
 			</div>
 		</div>
@@ -58,8 +56,8 @@
 		<div class="footer" style="text-align: center; padding-top: 5px; color: blue;">
 			<h4>Hệ thống ghi biển bản cuộc họp. Phát triển bởi nhóm DSD_09</h4>
 		</div>
-			<script type="text/javascript" th:src="@{/js/meeting.js}"></script>
 			<script type="text/javascript" th:src="@{/js/logout.js}"></script>
+			<script type="text/javascript" th:src="@{/js/userinformation.js}"></script>
 </div>
 
 </body>

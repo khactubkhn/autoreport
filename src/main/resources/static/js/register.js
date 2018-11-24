@@ -157,10 +157,18 @@ login = function(){
 			var token = response.token;
 			if(code == 0){
 				alert("Đăng nhập thành công");
-				window.location.replace("/default");
+				
+				var role = response.data.roles[0].role;
+				if(role == "CUSTOMER"){
+					window.location.replace("/default");
+				}else if(role == "ADMIN"){
+					window.location.replace("/admin/cruduser");
+				}
 				document.cookie = "authorization="+token;
+				var username = response.data.username;
 				var fullname = response.data.firstName +" " + response.data.lastName;
 				document.cookie = "fullname="+fullname;
+				document.cookie = "username="+username;
 			}else {
 				$("#status_login").text("Tên đăng nhập hoặc mật khẩu không chính xác");
 			}
@@ -183,6 +191,32 @@ registration = function(){
 				if(code == 0){
 					$("#registration_message").text("[Đăng ký thành công ! Bạn vui lòng quay lại trang đăng nhập để sử dụng hệ thống]");
 					$("#registration_message").css("color","chartreuse");
+				}else {
+					$("#registration_message").text("[Tên đăng nhập đã tồn tại, vui lòng chọn tên đăng nhập khác]");
+					$("#registration_message").css("color","red");
+				}
+			},
+			 error: function () {
+				 console.log("Server error");
+			 }
+		});
+	}
+}
+
+
+registrationCRUD = function(){
+	if(validate()){
+		$.ajax({
+			url:'/api/registration',
+			type:'post',
+			data:{username:$('#ip_username').val(), password:$('#ip_password').val(), firstName:$('#ip_firstname').val(), lastName:$('#ip_lastname').val(), phone:$('#ip_phone').val()},
+			success: function(response){
+				var code = response.code;
+				if(code == 0){
+					$("#registration_message").text("[Đăng ký thành công !]");
+					$("#registration_message").css("color","chartreuse");
+					window.location.replace("/admin/cruduser");
+					
 				}else {
 					$("#registration_message").text("[Tên đăng nhập đã tồn tại, vui lòng chọn tên đăng nhập khác]");
 					$("#registration_message").css("color","red");

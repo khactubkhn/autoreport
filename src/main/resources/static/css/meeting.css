@@ -249,3 +249,9 @@ body {
 .displayhidden {
 	display: none !important;
 }
+
+.btn_time {
+	width: 7%;
+    border: none;
+    background: no-repeat;
+}

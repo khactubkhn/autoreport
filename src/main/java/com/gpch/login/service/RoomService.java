@@ -349,7 +349,7 @@ public class RoomService{
 			List<Map<String, Object>> roles = new ArrayList<Map<String, Object>>();
 			
 			Room r = roomRepository.findById(roomId);
-			if(r!= null && r.getActive()!=0&&r.getDeleted()!=1) {
+			if(r!= null &&r.getDeleted()!=1) {
 				room.put("id", r.getId());
 				room.put("code", r.getCode());
 				room.put("name", r.getName());
@@ -538,6 +538,45 @@ public class RoomService{
 		
 		for(User u: allUser) {
 			if(u.getActive()==1&&listUserInRoom.indexOf(u.getId()) != -1&&u.getId()!=userId) {
+				Map<String, Object> us = new HashMap<String, Object>();
+				
+				us.put("userId", u.getId());
+				us.put("firstName", u.getFirstName());
+				us.put("lastName", u.getLastName());
+				us.put("username", u.getUsername());
+				us.put("createdDTG", u.getCreatedDTG());
+				
+				reporters.add(us);
+			}
+		}
+		
+		return reporters;
+	}
+    
+   
+public List<Map<String, Object>> getReporters1(int roomId, int userId) {
+    	
+    	
+		Room room = roomRepository.findById(roomId);
+		User user = userRepository.findById(userId);
+		List<Map<String, Object>> reporters = new ArrayList<Map<String,Object>>();
+		if(room==null||user==null) {
+			return null;
+		}
+		
+		List<User> allUser = userRepository.findAll();
+		Set<RoomUser> roomUsers = room.getMemberRooms();
+		if(roomUsers == null) {
+			return null;
+		}
+		
+		List<Integer> listUserInRoom = new ArrayList<Integer>();
+		for(RoomUser ru: roomUsers) {
+			listUserInRoom.add(ru.getUser().getId());
+		}
+		
+		for(User u: allUser) {
+			if(u.getActive()==1&&listUserInRoom.indexOf(u.getId()) == -1&&u.getId()!=userId) {
 				Map<String, Object> us = new HashMap<String, Object>();
 				
 				us.put("userId", u.getId());

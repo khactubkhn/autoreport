@@ -136,5 +136,30 @@ public class UserService{
 		return rooms;
 	}
     
+    public List<Map<String, Object>> GetAllUser(String username){
+    	User user = userRepository.findByUsername(username);
+    	List<Map<String, Object>> users = new ArrayList<Map<String, Object>>();
+    	if(user == null) {
+    		return null;
+    	}else {
+    		List<User> lstUser = new ArrayList<>();
+    		lstUser = userRepository.findAll();
+    		for (User item : lstUser) {
+    			if(item.getUsername().equals(username)) 
+    				continue;
+				Map<String,Object> userMap = new HashMap<>();
+				userMap.put("id", item.getId());
+				userMap.put("username", item.getUsername());
+				userMap.put("firstname", item.getFirstName());
+				userMap.put("lastname", item.getLastName());
+				userMap.put("phone", item.getPhone());
+				users.add(userMap);
+			}
+    		return users;
+    	}
+    }
+    
+  
+    
 
 }
