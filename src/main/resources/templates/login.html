@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Login</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/login.css}"/>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<div class="panel panel-login">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-12">
+								<a href="#" class="active" id="login-form-link">Login</a>
+							</div>
+						</div>
+						<hr>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-12">
+								<form autocomplete="off" id="login-form" action="javascript:void(0);" role="form" style="display: block;">
+									<div class="form-group">
+										<input type="text" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+									</div>
+									<div class="form-group text-center">
+										<h4 style='color:red;' id="status_login"></h4> 
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6 col-sm-offset-3">
+												<input type="button" id="btnLogin" tabindex="4" class="form-control btn btn-login" value="Đăng nhập" onclick="login()">
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="text-center">
+													<a href='' tabindex="5" data-toggle="modal" data-target="#formdangky">Đăng ký tài khoản</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="formdangky" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="modal-title" id="exampleModalLabel" style='text-align: center;'>Đăng ký tài khoản</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form action="javascript:void(0);" method="post" name="user" id='submit_register'>
+							
+							<div class="form-group">
+								<label for="ip_firstname">First Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_firstname" name='firstname' placeholder="Nhập vào Họ và tên đệm" maxlength="256">
+								<small id="status_firstname" class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+							
+							<div class="form-group">
+								<label for="ip_lastname">Last Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_lastname" name='lastname' placeholder="Nhập vào Tên" maxlength="256">
+								<small id="status_lastname" class="form-text text-muted status_error" style="color: red;" ></small>
+							</div>
+							
+							<div class="form-group">
+								<label for="ip_phone">Phone Number</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_phone" name='sdt' placeholder="Nhập vào số điện thoại" maxlength="11">
+								<small id="status_phone" class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+							
+							<div class="form-group">
+								<label for="ip_username">User Name</label><span class="star">*</span>
+								<input type="text" class="form-control" id="ip_username" name='username' placeholder="Nhập vào tên đăng nhập" maxlength="10">
+								<input type="hidden" id="statusUsername" value=""/>
+								<small id="status_username" class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+							
+							<div class="form-group">
+								<label for="ip_password">PassWord</label><span class="star">*</span>
+								<input type="password" class="form-control" id="ip_password" name='password' placeholder="Nhập vào mật khẩu" maxlength="45">
+								<small id="status_password" class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+							
+							<div class="form-group">
+								<label for="ip_repassword">Confirm PassWord</label><span class="star">*</span>
+								<input type="password" class="form-control" id="ip_repassword" placeholder="Nhập lại mật khẩu" maxlength="45">
+								<small id="status_repassword" class="form-text text-muted status_error" style="color: red;"></small>
+							</div>
+							
+							<button type="submit" class="btn btn-primary" onclick="registration()">Đăng ký</button>
+							<h4 id="registration_message" style="text-align: center;"></h4>
+							
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+			<!-- <script src="<c:u"> </script>  -->
+		</div>
+		<script type="text/javascript" th:src="@{/js/register.js}"></script>
+	</div>
+</body>
+</html>

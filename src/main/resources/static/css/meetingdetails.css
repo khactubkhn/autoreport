@@ -1,0 +1,32 @@
+.time_class {
+	width: 22%;
+	font-size: 13px;
+	padding: 1px;
+	display: inline-block;
+}
+
+.user_span {
+	background: blanchedalmond;
+	padding: 6px;
+	border-radius: 13px;
+	display: inline-block;
+	margin: 1px;
+}
+
+.historyitem {
+	border-top: 1px solid darkgray;
+	border-bottom: 1px solid darkgray;
+	padding: 15px;
+}
+
+.contentHistory {
+	height: 50px;
+    overflow: auto;
+    border: 0.5px solid antiquewhite;
+    padding: 4px;
+    margin-bottom: 6px;
+}
+
+.displayhidden {
+	display: none !important;
+}

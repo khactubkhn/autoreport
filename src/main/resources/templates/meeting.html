@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tham gia cuộc họp</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/meeting.css}" />
+	<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.5/chosen.jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.5/chosen.min.css">
+</head>
+<body>
+	<div class="wraper">
+		<div class="header" style="padding-top: 1px; height: 78px;">
+			<h4
+			style="text-align: center;font-weight: bold; color: blue;">RECORDING MEETING SYSTEM</h4>
+			<div class="divlogout" style="float: right; padding-right: 15px;">
+				Xin chào: <span id="spFullName"></span>
+				<button type="button" class="btn btn-primary" onclick="logout()" style="display: inline;" title="Đăng xuất">
+					<i class="fa fa-sign-out" aria-hidden="true"></i>
+				</button>
+			</div>
+
+		</div>
+		<div class="content">
+			<div class="content_left">
+				<div class="meeting_infor" style="padding: 12px;">
+					<label>Tên cuộc họp: </label><label id="meeting_name"></label><br>
+					<label>Thời gian bắt đầu: </label><label id="meeting_time"></label>
+				</div>
+				<div class="discusting">
+					<ul class="lstMessage" >
+
+					</ul>
+				</div>
+				<div class="sending">
+					<input type="hidden" id="hidSpeakerID">
+					<input type="hidden" id="hidFullName">
+					<input type="text"  id ="message" disabled="disabled" class="form-control"  
+					placeholder="Type a message ..." style="width: 90%;display: inline-block; padding: 20px;">
+					<button id="btn_send" class="btn btn-primary" style="width: 9%; font-size: 20px;" onclick="sendMessage()">
+						<i class="fa fa-paper-plane" aria-hidden="true"></i>
+					</button>
+				</div>
+			</div>
+			<div class="content_right">
+				<div class="btn_function_area">
+					<div class="function" style="text-align: center; margin-top: 12px;">
+						<button type="button" id="addUser" class="btn btn-primary" style="width: 23%" data-toggle="modal" data-target="#popAddNewMeeting" onclick="loadData2Popup()" title="Thêm người dùng">
+							<i class="fa fa-user-plus" aria-hidden="true"></i>
+						</button>
+						<button type="button"  id="removeUser" class="btn btn-danger" style="width: 23%" data-toggle="modal" data-target="#popRemoveMember" onclick="loadData2PopupRemove()" title="Xóa ngươi dùng">
+							<i class="fa fa-ban" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-infor" style="width: 23%" data-toggle="modal" data-target="#popShareCode" title="Share mã code" onclick="loadPermission2PopupShareCode()">
+							<i class="fa fa-share" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-success" style="width: 23%" title="Kết thúc cuộc họp" onclick="finishMeeting()"><i class="fa fa-times-circle" aria-hidden="true"></i></button>
+					</div>
+				</div>
+				<div class="lst_user">
+					<i class="fa fa-hand-o-right" aria-hidden="true"></i> Danh sách speaker
+					<ul id="speaker" style="height: 50%; margin-bottom: 8px; border-bottom: 1px solid darkgray;">
+						
+					</ul>
+
+					<i class="fa fa-hand-o-right" aria-hidden="true"></i> Danh sách reporter
+
+					<ul id="users"  style="height: 40%; border-bottom: 1px solid darkgray;">
+						
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="footer" style="text-align: center; padding-top: 5px; color: blue;">
+			<h4>Hệ thống ghi biên bản cuộc họp. Phát triển bởi nhóm DSD_09</h4>
+		</div>
+		<script type="text/javascript" th:src="@{/js/meeting.js}"></script>
+
+		<div class="modal fade" id="popAddNewMeeting" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog"  role="document">
+				<div class="modal-content">
+					<div class="modal-header" style="background: aliceblue;">
+						<h3 class="modal-title" id="exampleModalLabel" style="display: inline; font-weight: bold;">Thêm người vào cuộc họp</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="addSpeaker" style="border-top: 1px solid;">
+
+							<div style="background: aliceblue; padding: 10px 9px;"> <h3><i class="fa fa-plus-square" aria-hidden="true"> Thêm Speaker </i></h3></div>
+							<div class="row" style="margin-top: 15px;">
+								<div class="col-md-6">
+									<label>FirstName</label>
+									<input type="text" class="form-control" id="firstName_Speaker">
+									<label>LastName</label>
+									<input type="text" class="form-control" id="lastName_Speaker">
+									<button type="button" class="btn btn-success" style="width: -webkit-fill-available; margin-top: 10px;" onclick="addSpeaker()">Add</button>
+								</div>
+
+								<div class="col-md-6" style="padding: 20px;">
+									<div class="lstSpeaker">
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="addReporter" style="border-top: 1px solid;">
+
+							<div style="background: aliceblue; padding: 10px 9px;"> <h3><i class="fa fa-plus-circle" aria-hidden="true"> Thêm Reporter </i></h3></div>
+							<div class="row" style="margin-top: 15px;">
+								<div class="col-md-5">
+									<i class="fa fa-angle-double-right" aria-hidden="true" style="font-weight: bold;">Chọn người dùng</i>
+									<select class="chosen" id="selectreporter">
+									</select>
+								</div>
+
+								<div class="col-md-5">
+									<i class="fa fa-angle-double-right" aria-hidden="true" style="font-weight: bold;">Chọn quyền</i>
+									<select class="chosen"  multiple="true" id="selectreporterpermission">
+
+									</select>
+								</div>
+								<div class="col-md-2">
+									<br>
+									<button type="button" class="btn btn-success" style="padding: 4px 6px;" onclick="addReporter()">
+										<i class="fa fa-user-plus" aria-hidden="true"></i>
+									</button>					
+								</div>
+
+							</div>
+							<div class="row" style="padding: 10px;">
+								<div class="lst_reporter">
+
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary" id="btnPopAddNew" onclick="addListUser()"> OK</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="modal fade" id="popRemoveMember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog"  role="document">
+				<div class="modal-content">
+					<div class="modal-header" style="background: aliceblue;">
+						<h3 class="modal-title" id="exampleModalLabel" style="display: inline; font-weight: bold;">Xóa người khỏi cuộc họp</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div id="lstUserExist">
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary" id="btnPopAddNew" onclick="RemoveUsers()"> OK</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- popup share code -->
+
+		<div class="modal fade" id="popShareCode" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog"  role="document">
+				<div class="modal-content">
+					<div class="modal-header" style="background: aliceblue;">
+						<h3 class="modal-title" id="exampleModalLabel" style="display: inline; font-weight: bold;">Chia sẻ mã code tham gia cuộc họp</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<h4>--> Lựa chọn danh sách các quyền chia sẻ:</h4>
+						<div class="row">
+							<div class="col-md-10">
+								<select class="chosen"  multiple="true" id="permissionShare">
+
+								</select>
+							</div>
+							<div class="col-md-2">
+								<button type="button" class="btn btn-success" title="Tạo code" onclick="createCode()">
+									<i class="fa fa-plus" aria-hidden="true"></i>
+								</button>
+							</div>
+
+
+						</div>
+						<div class="lstCodes">
+							<table id="tblstCodes" class="table" style="margin-top: 10px;">
+								<tr>
+									<th>Danh sách các quyền</th>
+									<th>Code share</th>
+								</tr>
+							</table>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript" th:src="@{/js/bootstrap-multiselect.js}"></script>
+		<script type="text/javascript" th:src="@{/js/bootstrap-dropselect.js}"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+		<script type="text/javascript" th:src="@{/js/logout.js}"></script>
+		<script type="text/javascript" th:src="@{/js/permission.js}"></script>
+		<!-- <script type="text/javascript" th:src="@{/js/meetingchat.js}"></script> -->
+		<script type="text/javascript">
+			$(".chosen").chosen();
+			$(".chosen-container-single").css("width","-webkit-fill-available");
+			$("#selectreporter").val("6").trigger("chosen:updated");
+			$(".chosen-container").css("width","-webkit-fill-available");
+		</script>
+	</body>
+	</html>

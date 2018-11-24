@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Trang chủ</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/default.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap-multiselect.css}" />
+	<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.5/chosen.jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.5/chosen.min.css">
+</head>
+<body>
+	<div class="wraper">
+		<div class="header" style="padding-top: 1px; height: 78px;">
+			<h4
+			style="text-align: center;font-weight: bold; color: blue;">RECORDING MEETING SYSTEM</h4>
+			<div class="divlogout" style="float: right; padding-right: 15px;">
+				Xin chào: <span id="spFullName"></span>
+				<button type="button" class="btn btn-primary" onclick="logout()" style="display: inline;" title="Đăng xuất">
+					<i class="fa fa-sign-out" aria-hidden="true"></i>
+				</button>
+			</div>
+		
+	</div>
+	<div class="content">
+		<div class="content_left">
+
+			<div class="profile">
+				<div class="information">	
+					<div class="add_room">
+						<button type="button" style="margin-right: 10px;" class="btn btn-info" title="Join vào cuộc họp" data-toggle="modal" data-target="#popJoinMeeting">
+							<i class="fa fa-sign-in" aria-hidden="true"></i>
+						</button>
+						<button type="button" class="btn btn-success" title="Tạo cuộc họp mới"  data-toggle="modal" data-target="#popAddNewMeeting"  > 
+							<i class="fa fa-plus" aria-hidden="true" ></i>
+						</button>
+					</div>
+				</div>
+				<div class="searchRoom" style="clear: both; margin-top: 10px;">
+					<input type="text" id="txtSearch" class="form-control" placeholder="Nhập vào tên cuộc họp" style="width: 80%; float: left;">
+					<div style="width: 15%; display: inline-block; text-align: right; padding-left: 2px;">
+						<button type="button" class="btn btn-primary" title="Tìm kiếm" style="width: -webkit-fill-available;" onclick="searchRoom()" >
+							<i class="fa fa-search"></i>
+						</button>
+					</div>
+					
+				</div>
+
+			</div>
+			<div id="list_room_area">
+				<ul id="listRoom">
+				</ul>
+			</div>
+
+		</div>
+		<div class="content_right"></div>
+	</div>
+	<div class="footer" style="text-align: center; padding-top: 5px; color: blue;">
+		<h4>Hệ thống ghi biển bản cuộc họp. Phát triển bởi nhóm DSD_09</h4>
+	</div>
+	
+	<!--  popup join vào cuộc họp -->
+	
+	<div class="modal fade bd-example-modal-sm" id="popJoinMeeting" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm" style="top: 30%;" role="document">
+			<div class="modal-content">
+				<div class="modal-header" style="background: aliceblue;">
+					<h3 class="modal-title" id="exampleModalLabel" style="display: inline; font-weight: bold;">Tham gia cuộc họp</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Nhập vào mã code:</label>
+						<input type="text" class="form-control" id="txtCode">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" onclick="joinMeeting()">OK</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Tạo mới cuộc họp -->
+	<div class="modal fade" id="popAddNewMeeting" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog"  role="document">
+			<div class="modal-content">
+				<div class="modal-header" style="background: aliceblue;">
+					<h3 class="modal-title" id="exampleModalLabel" style="display: inline; font-weight: bold;">Tạo mới cuộc họp</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Tên cuộc họp: <span style="color: red;">*</span></label>
+						<input type="text" class="form-control" id="txtMeetingName" placeholder="Nhập vào tên cuộc họp ít nhất 10 kí tự">
+					</div>
+					<div class="form-group">
+						<label>Mô tả: <span style="color: red;">*</span></label>
+						<textarea rows="3" class="form-control" id="txtMeetingDescription" placeholder="Nhập vào mô tả ít nhất 10 kí tự"></textarea>
+					</div>
+					<div class="form-group">
+						<label>Số người tối đa: <span style="color: red;">*</span></label>
+						<input type="number" min="1" id="txtMaxUser" class="form-control">
+					</div>
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" id="btnPopAddNew" onclick="addRoom()">Tạo mới</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" th:src="@{/js/bootstrap-multiselect.js}"></script>
+		<script type="text/javascript" th:src="@{/js/bootstrap-dropselect.js}"></script>
+		<script type="text/javascript" th:src="@{/js/default.js}"></script>
+		<script type="text/javascript" th:src="@{/js/logout.js}"></script>
+		<script type="text/javascript">
+			$(".chosen").chosen();
+			$(".chosen-container-single").css("width","-webkit-fill-available");
+			$("#selectreporter").val("6").trigger("chosen:updated");
+			$(".chosen-container").css("width","-webkit-fill-available");
+			</script>
+		</div>
+
+	</body>
+	</html>

@@ -1,0 +1,164 @@
+body {
+	padding: 10px 25px;
+}
+
+.wraper {
+	height: -webkit-fill-available;
+	position: relative;
+}
+
+.header {
+	background: aliceblue;
+	height: 51px;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+	margin-bottom: 7px;
+}
+
+.content {
+	height: calc(100% - 60px);
+	background: chartreuse;
+	max-height: 640px;
+	position: relative;
+}
+
+.content_left {
+	/* background: red; */
+	height: -webkit-fill-available;
+	width: 33%;
+	float: left;
+}
+
+.profile {
+	height: 120px;
+	background: azure;
+	padding: 6px;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+}
+
+.information {
+	height: 60px;
+	padding: 3px;
+}
+
+.image_profile {
+	width: 50px;
+	height: 50px;
+	float: left;
+	border-radius: 34px;
+	border: 2px solid darkgrey;
+	overflow: hidden;
+}
+
+.nameuser {
+	width: 50px;
+	float: left;
+	text-align: center;
+	padding-top: 15px;
+	padding-left: 10px;
+}
+
+.add_room {
+	/* width: 200px; */
+	float: right;
+	text-align: right;
+	height: 50px;
+	padding: 10px;
+}
+
+#list_room_area {
+	position:relative;
+	height: 500px;
+	background: azure;
+	margin-top: 10px;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+}
+
+.content_right {
+	height: -webkit-fill-available;
+	width: 66%;
+	/* background: bisque; */
+	float: right;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+}
+
+.footer {
+	height: 50px;
+	background: aliceblue;
+	clear: both;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+}
+
+#list_room_area ul{
+	list-style-type: none;
+    background-color: #FFF;
+    margin: 0;
+    overflow: auto;
+    overflow-y: scroll;
+    padding: 20px 20px 0px 20px;
+    height: -webkit-fill-available;
+}
+
+#list_room_area .meetingroom{
+	padding-left: 68px;
+    position: relative;
+}
+
+#list_room_area ul li{
+	line-height: 1.7rem;
+    padding: 10px 20px;
+    margin: 0;
+    border-bottom: 1px solid #f4f4f4;
+}
+
+#list_room_area .meetingroom i{
+	position: absolute;
+    width: 42px;
+    height: 42px;
+    overflow: hidden;
+    left: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 18px;
+    line-height: 42px;
+    color: #fff;
+    text-align: center;
+    border-radius: 50%;
+    font-style: normal;
+    text-transform: uppercase;
+}
+
+.style_time{
+	font-style: italic;
+}
+
+.meetingroom:hover {
+	background: antiquewhite;
+    border-radius: 33px;
+    cursor: pointer;
+}
+
+.lstSpeaker{
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+	background: aliceblue;
+    height: 134px;
+    overflow: auto;
+}
+
+.user_span {
+	background: blanchedalmond;
+    padding: 6px;
+    border-radius: 13px;
+    display: inline-block;
+    margin: 1px;
+}
+
+.chosen-container-single {
+	width: -webkit-fill-available;
+}
+
+.lst_reporter{
+	height: 81px;
+    background: aliceblue;
+    border-radius: 7px;
+    box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+}
