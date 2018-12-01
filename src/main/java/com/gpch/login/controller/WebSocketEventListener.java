@@ -1,9 +1,13 @@
 package com.gpch.login.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.gpch.login.model.ChatMessage;
+import com.gpch.login.model.User;
+import com.gpch.login.service.RoomService;
+import com.gpch.login.service.UserService;
 
 import org.aspectj.weaver.ast.HasAnnotation;
 import org.slf4j.Logger;
@@ -27,6 +31,9 @@ public class WebSocketEventListener {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+    @Autowired
+    private RoomService roomService;
+    
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
     	Message<byte[]> a = event.getMessage();
@@ -39,15 +46,21 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if(username != null) {
-            logger.info("User Disconnected : " + username);
+        User user = (User) headerAccessor.getSessionAttributes().get("user");
+        if(user != null) {
+            logger.info("User Disconnected : " + user.getUsername());
+            
+            List<Integer> roomIdsUpdate = roomService.DiscontentRemoveTranscriptEditing(user.getId());
+            
+            
             Map<String, Object> data = new HashMap<String, Object>();
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
+            chatMessage.setType(ChatMessage.MessageType.PULL_TRANSCRIPT);
             chatMessage.setData(data);
 
-            messagingTemplate.convertAndSend("/topic/public", chatMessage);
+            roomIdsUpdate.forEach(roomId -> {
+            	messagingTemplate.convertAndSend("/topic/"+roomId, chatMessage);            	
+            });
         }
     }
 }

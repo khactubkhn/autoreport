@@ -14,6 +14,7 @@ $(document).ready(function(){
 		type:'get',
 		success: function(response){
 			var code = response.code;
+			console.log(response);
 			if(code == 0){
 				listRoom = response.data;
 				listRoom.sort(function(a,b){
@@ -43,7 +44,7 @@ getCookiebyName = function(name){
 
 
 loadData = function(){
-	$('#listRoom').children().remove().end(); 
+	$('#listRoom').children().remove().end();  
 	// bind data to listmeetingroom
 	for (var i = 0; i < listRoom.length; i++) {
 		var id = listRoom[i].id;
@@ -191,27 +192,10 @@ joinMeeting = function(){
 				var code = response.code;
 				if(code == 0){
 					console.log("Success");
-					$('#popJoinMeeting').modal().hide();
-					$.ajax({
-						url:'/api/room/joined',
-						type:'get',
-						success: function(response){
-							var code = response.code;
-							if(code == 0){
-								listRoom = response.data;
-								listRoom.sort(function(a,b){
-									return - (a["active"] - b["active"]); 
-								});
-								console.log("Success");
-								loadData();
-							}else {
-								console.log("Faild");
-							}
-						},
-						error: function () {
-							console.log("Server error");
-						}
-					});
+					var roomID = response.data.id;
+					var url = "meeting?roomID="+roomID;
+					window.location.replace(url);
+					
 				}else {
 					console.log("Faild");
 				}

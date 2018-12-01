@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8"></meta>
+	<link rel="stylesheet"
+		  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6 text-center">
+				<p>Công ty cổ phần VFF</p>
+			</div>
+			<div class="col-sm-6 text-center">
+				<p>CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+				<p>Độc lập - Tự do - Hạnh phúc</p>
+			</div>
+		</div>
+		<div class="row text-center">
+			<h1>BIÊN BẢN CUỘC HỌP</h1>
+			<h2>Về vấn đề hợp đồng lao động</h2>
+		</div>
+		<div class="content-report">
+			<!--<div class="row">-->
+				<!--<p>Thời gian bắt đầu: <span></span></p>-->
+			<!--</div>-->
+			<div class="row">
+				<p>Địa điểm: Phòng hội nghị Trung tâm VFF</p>
+			</div>
+			<div class="row">
+				<p>Thành phần tham dự: <span th:text="${spkStr}"></span></p>
+			</div>
+			<div class="row">
+				<p>Nội dung cuộc họp: </p>
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th width="15%">Bắt đầu</th>
+							<th width="15%">Kết thúc</th>
+							<th width="30%">Người nói</th>
+							<th width="40%">Nội dung</th>
+						</tr>
+					</thead>
+					<tbody>
+					<tr>
+					</tr>
+						<tr th:each="data : ${datas}">
+							<td th:text="${data.get(0)}"></td>
+							<td th:text="${data.get(1)}"></td>
+							<td th:text="${data.get(2)}"></td>
+							<td th:text="${data.get(3)}"></td>
+
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="row">
+				<p>Cuộc họp kết thúc vào 08-12-2018 11h:12:30</p>
+			</div>
+		</div>
+		<!--<div class="footer-report text-center">-->
+			<!--<div class="row">-->
+				<!--<div class="col-sm-6">-->
+					<!--<p style="font-style: bold;"></p>-->
+					<!--<p style="font-style: italic;">(Chu ky va ho ten)</p>-->
+				<!--</div>-->
+				<!--<div class="col-sm-6">-->
+					<!--<p style="font-style: bold;">CHU TOA</p>-->
+					<!--<p style="font-style: italic;">(Chu ky va ho ten)</p>-->
+				<!--</div>-->
+			<!--</div>-->
+		<!--</div>-->
+	</div>
+</body>
+</html>

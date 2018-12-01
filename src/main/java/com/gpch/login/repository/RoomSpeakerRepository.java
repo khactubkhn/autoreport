@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository("RoomSpeakerRepository")
 public interface RoomSpeakerRepository extends JpaRepository<RoomSpeaker, Integer> {
     RoomSpeaker findById(int id);
+    
+    RoomSpeaker findByFirstNameAndLastNameAndRoomId(String firstName, String lastName, int roomId);
 }

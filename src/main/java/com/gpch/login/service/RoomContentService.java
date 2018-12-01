@@ -1,6 +1,7 @@
 package com.gpch.login.service;
 
 import com.gpch.login.constant.RoomRoleConstant;
+import com.gpch.login.model.FileSave;
 import com.gpch.login.model.Role;
 import com.gpch.login.model.RoomCode;
 import com.gpch.login.model.RoomContent;
@@ -29,7 +30,6 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,6 +66,9 @@ public class RoomContentService{
 	
 	@Autowired
     private RoomService roomService;
+	
+	@Autowired
+    private FileService fileService;
     
     
     public Map<String, Object> writeRoomContent(User user, int roomId, int speakerId, String content, long startTime, long endTime) {
@@ -83,7 +86,8 @@ public class RoomContentService{
 		for(RoomRole roleBy: rolesBy) {
 			if(roleBy.getName().equals(RoomRoleConstant.WRITE)) {
 				RoomContent roomContent = new RoomContent();
-				RoomContentReport roomContentReport = new RoomContentReport(); 
+				
+				//RoomContentReport roomContentReport = new RoomContentReport(); 
 		    	
 				roomContent.setContent(content);
 				roomContent.setCreatedDTG(new Timestamp(new Date().getTime()));
@@ -97,17 +101,17 @@ public class RoomContentService{
 		    	
 				roomContent = roomContentRepository.save(roomContent);
 				
-				roomContentReport.setContent(content);
-				roomContentReport.setCreatedDTG(new Timestamp(new Date().getTime()));
-				roomContentReport.setEnd(new Timestamp(endTime));
-				roomContentReport.setStart(new Timestamp(startTime));
-				roomContentReport.setRoomId(room.getId());
-				roomContentReport.setSpeakerId(speakerId);
-				roomContentReport.setUser(user);
-				roomContentReport.setUpdatedBy(user.getId());
-				roomContentReport.setUpdatedDTG(new Timestamp(new Date().getTime()));
-		    	
-				roomContentReport = roomContentReportRepository.save(roomContentReport);
+//				roomContentReport.setContent(content);
+//				roomContentReport.setCreatedDTG(new Timestamp(new Date().getTime()));
+//				roomContentReport.setEnd(new Timestamp(endTime));
+//				roomContentReport.setStart(new Timestamp(startTime));
+//				roomContentReport.setRoomId(room.getId());
+//				roomContentReport.setSpeakerId(speakerId);
+//				roomContentReport.setUser(user);
+//				roomContentReport.setUpdatedBy(user.getId());
+//				roomContentReport.setUpdatedDTG(new Timestamp(new Date().getTime()));
+//		    	
+//				roomContentReport = roomContentReportRepository.save(roomContentReport);
 				
 				
 				return getRoomContent(roomContent.getId());
@@ -156,7 +160,6 @@ public class RoomContentService{
     	List<Map<String, Object>> contents = new ArrayList<Map<String,Object>>();
     	if(roomService.checkInRoom(roomId, user)){
     		List<RoomContent> list = roomContentRepository.findByRoomId(roomId);
-    		
     		for(RoomContent roomContent: list) {
     			RoomSpeaker roomSpeaker = roomSpeakerRepository.findById(roomContent.getSpeakerId());
     			
@@ -167,7 +170,7 @@ public class RoomContentService{
     			reporter.put("userId", roomContent.getUser().getId());
     			reporter.put("firstName", roomContent.getUser().getFirstName());
     			reporter.put("lastName", roomContent.getUser().getLastName());
-    			reporter.put("userName", roomContent.getUser().getUsername());
+    			reporter.put("username", roomContent.getUser().getUsername());
     			
     			speaker.put("speakerId", roomSpeaker.getId());
     			speaker.put("firstName", roomSpeaker.getFirstName());
@@ -183,35 +186,33 @@ public class RoomContentService{
     			
     			contents.add(rc);
     		}
+    		
+    		List<FileSave> fileSaves = fileService.getFileRoomId(roomId);
+    		
+    		for(FileSave filesave: fileSaves) {
+    			User u = userRepository.findById(filesave.getCreatedBy());
+    			
+    			Map<String, Object> rc = new HashMap<String, Object>();
+    			Map<String, Object> reporter = new HashMap<String, Object>();
+    			
+    			reporter.put("userId", u.getId());
+    			reporter.put("firstName", u.getFirstName());
+    			reporter.put("lastName", u.getLastName());
+    			reporter.put("username", u.getUsername());
+    			
+    			rc.put("speaker", null);
+    			rc.put("content", filesave.getName());
+    			rc.put("startTime", null);
+    			rc.put("endTime", null);
+    			rc.put("created", filesave.getCreatedDTG());
+    			rc.put("reporter", reporter);
+    			
+    			contents.add(rc);
+    		}
+    		contents.sort((Map<String, Object> n1, Map<String, Object> n2)->(int)((Timestamp)n1.get("created")).getTime()-(int)((Timestamp)n2.get("created")).getTime());
+    		
     	}
     	return contents;
     }
-    
-    private int editDistance(String s1, String s2) {
-        s1 = s1.toLowerCase();
-        s2 = s2.toLowerCase();
-
-        int[] costs = new int[s2.length() + 1];
-        for (int i = 0; i <= s1.length(); i++) {
-          int lastValue = i;
-          for (int j = 0; j <= s2.length(); j++) {
-            if (i == 0)
-              costs[j] = j;
-            else {
-              if (j > 0) {
-                int newValue = costs[j - 1];
-                if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                  newValue = Math.min(Math.min(newValue, lastValue),
-                      costs[j]) + 1;
-                costs[j - 1] = lastValue;
-                lastValue = newValue;
-              }
-            }
-          }
-          if (i > 0)
-            costs[s2.length()] = lastValue;
-        }
-        return costs[s2.length()];
-      }
 
 }

@@ -1,7 +1,6 @@
 package com.gpch.login.controller;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,10 +8,10 @@ import java.util.Set;
 
 import com.gpch.login.model.ChatMessage;
 import com.gpch.login.model.ChatMessage.MessageType;
-import com.gpch.login.model.RoomContent;
+import com.gpch.login.model.FileSave;
 import com.gpch.login.model.RoomUser;
-import com.gpch.login.model.RoomContent;
 import com.gpch.login.model.User;
+import com.gpch.login.service.FileService;
 import com.gpch.login.service.JwtService;
 import com.gpch.login.service.RoomContentService;
 import com.gpch.login.service.RoomService;
@@ -50,14 +49,8 @@ public class ChatController {
 	@Autowired
 	private SimpMessagingTemplate template;
 
-//	--------------------------Tong hop -----------------------
-	private HashMap<Integer, RoomContent> lstSpeaker = new HashMap<>(); // luu danh sach cac roomcontent tuong ung voi tung speaker dang duoc chon
-	private int L = 2; // do tre thoi gian do thao tac bam chuot chon thoi gian
-	private int min = 4; // thoi gian ngan nhat de noi het mot cau hoan chinh
-	private int B = 2; // thoi gian ngat giua hai cau lien tiep
-	
-//	--------------------------------Tong hop -----------------------------
-	
+	@Autowired
+    FileService fileService;
 	
     @MessageMapping("/chat.sendMessage")
 //    @SendTo("/topic/hello")
@@ -72,57 +65,18 @@ public class ChatController {
     			if(data.containsKey("speakerId")&&data.containsKey("content")&&data.containsKey("startTime")&&
     					data.containsKey("endTime")) {
     				
-    				
-    				
-    				
-//-------------------------------- Tong hop ----------------------
-    				int speakerIDRecive = (int)data.get("speakerId");
-    				String contentRecive = (String)data.get("content");
-    				long startTimeRecive = (long)data.get("startTime");
-    				long endTimeRecive = (long)data.get("endTime");
-    				long denta = endTimeRecive - startTimeRecive;
-    				if(lstSpeaker.containsKey(speakerIDRecive)) {
-    					RoomContent contentChoose = lstSpeaker.get(speakerIDRecive);
-    					int distance = Math.abs((int)(contentChoose.getStart().getTime() - startTimeRecive)/1000);
-    					if(distance < L) {
-    						if(contentRecive.length() > contentChoose.getContent().length()) {
-    							contentChoose.setSpeakerId(speakerIDRecive);
-    							contentChoose.setContent(contentRecive);
-    	    					contentChoose.setStart(new Timestamp((contentChoose.getStart().getTime() + startTimeRecive)/2));
-    	    					contentChoose.setEnd(new Timestamp((contentChoose.getEnd().getTime() + endTimeRecive)/2));
-    						}
-    					}else if(distance > (min + B + L) && startTimeRecive > contentChoose.getEnd().getTime()) { // khi thoi gian bat dau lon hong min + B+ L, chac
-    						System.out.println("SpeakerID: "+ contentChoose.getSpeakerId() +", Content: " + contentChoose.getContent() +", StartTime: " + contentChoose.getStart() +" , EndTime: " + contentChoose.getEnd());
-    						contentChoose.setSpeakerId(speakerIDRecive);
-    						contentChoose.setContent(contentRecive);
-    						contentChoose.setStart(new Timestamp(startTimeRecive));
-    						contentChoose.setEnd(new Timestamp(endTimeRecive));
-    					
-    					}
-    				
-    				}else {
-    					// them mot content moi vao list danh dau
-    					RoomContent rContent = new RoomContent();
-    					rContent.setContent(contentRecive);
-    					rContent.setStart(new Timestamp(startTimeRecive));
-    					rContent.setEnd(new Timestamp(endTimeRecive));
-    					rContent.setSpeakerId(speakerIDRecive);
-    					lstSpeaker.put(speakerIDRecive, rContent);
-    				}
-    			
-//   ---------------------------------- Tong Hop ----------------------------- 			
-    				
-    				
-    				
-    				
-    				
     				Map<String, Object> dataMessage = roomContentService.writeRoomContent(user, roomId, (int)data.get("speakerId"), (String)data.get("content"), (long)data.get("startTime"), (long)data.get("endTime"));
-    			
-    			
+    				
     				ChatMessage message = new ChatMessage();
 	  	    		  message.setType(MessageType.CHAT);
 	  	    		message.setData(dataMessage);
     				this.template.convertAndSend("/topic/"+roomId, message);
+    				roomService.updateRoomContentMerge(roomId, user.getId());
+    				roomService.updateRoomTranscript(roomId, user.getId());
+    			
+    				message  = new ChatMessage();
+    				message.setType(MessageType.PULL_TRANSCRIPT);
+    				this.template.convertAndSend("/topic/"+(int)data.get("roomId"), message);
     			}
     			
     		}
@@ -130,6 +84,59 @@ public class ChatController {
     	
     	return chatMessage;
     }
+    
+    @MessageMapping("/chat.sendFile")
+//  @SendTo("/topic/hello")
+  public ChatMessage sendFile(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+  	User user = (User) headerAccessor.getSessionAttributes().get("user");
+  	
+  	if(user != null) {
+  		Map<String, Object> data = chatMessage.getData();
+  		
+  		int roomId = (int) data.get("roomId");
+  		if(roomService.checkInRoom(roomId, user)) {
+  			if(data.containsKey("fileSaveId")) {
+  				int fileSaveId = (int) data.get("fileSaveId");
+  				Map<String, Object> dataMessage = new HashMap<String, Object>();
+  				Map<String, Object> newFile1 = new HashMap<String, Object>();
+  				Map<String, Object> user1 = new HashMap<String, Object>();
+  				User u = userService.findUserByUsername(user.getUsername());
+  				
+  				FileSave newFile = fileService.getFileSaveById(fileSaveId);
+  				newFile1.put("id", newFile.getId());
+  				newFile1.put("name", newFile.getName());
+  				newFile1.put("CreatedDTG", newFile.getCreatedDTG());
+  				
+  				user1.put("userId", u.getId());
+  				user1.put("firstName", u.getFirstName());
+  				user1.put("lastName", u.getLastName());
+  				user1.put("username", u.getUsername());
+  				
+  				dataMessage.put("newFile", newFile1);
+  				dataMessage.put("user", user1);
+  				
+  				ChatMessage message = new ChatMessage();
+	  	    		  message.setType(MessageType.ADD_FILE);
+	  	    		message.setData(dataMessage);
+  				this.template.convertAndSend("/topic/"+roomId, message);
+  				roomService.updateRoomFileContent(roomId, user.getId());
+				roomService.updateRoomTranscript(roomId, user.getId());
+				
+				message  = new ChatMessage();
+				message.setType(MessageType.PULL_TRANSCRIPT);
+				this.template.convertAndSend("/topic/"+(int)data.get("roomId"), message);
+				
+				message  = new ChatMessage();
+				message.setType(MessageType.PULL_SPEAKER);
+				this.template.convertAndSend("/topic/"+(int)data.get("roomId"), message);
+  			
+  			}
+  			
+  		}
+  	}
+  	
+  	return chatMessage;
+  }
 
     @MessageMapping("/chat.addUser")
 //    @SendTo("/topic/hello")
@@ -165,5 +172,67 @@ public class ChatController {
     	    }
         return chatMessage;
     }
+    
+    @MessageMapping("/chat.notify")
+  public ChatMessage notifyRoom(@Payload ChatMessage chatMessage,
+                             SimpMessageHeaderAccessor headerAccessor, StompHeaderAccessor stompHeaderAccessor) {
+      // Add username in web socket session
+  	Map<String, Object> data = chatMessage.getData();
+  	
+  	      
+  	User user = (User) headerAccessor.getSessionAttributes().get("user");
+  	      ChatMessage message = new ChatMessage();
+  	      Boolean rs = false;
+  	      if (user != null) {
+  	    	  headerAccessor.getSessionAttributes().put("user", user);
+  	    	  
+  	    	  switch (chatMessage.getType().toString()) {
+				case "EDITING" :
+					rs = roomService.setEditingRoomTranscript((int)data.get("transcriptId"), user.getId());
+					if(rs) {
+						message.setType(MessageType.PULL_TRANSCRIPT);
+					}
+					
+					break;
+				case "REMOVE_EDITING" :
+					rs = roomService.removeEditingRoomTranscript((int)data.get("transcriptId"), user.getId());
+					if(rs) {
+						message.setType(MessageType.PULL_TRANSCRIPT);
+					}
+					
+					break;
+				case "PULL_SPEAKER" :
+					message.setType(MessageType.PULL_SPEAKER);
+					
+					break;
+					
+				case "EDIT" :
+			    	
+			    	rs = roomService.editTranscript((int) data.get("transcriptId"), (String) data.get("content"), user.getId());
+			    	if(rs) {
+			    		roomService.removeEditingRoomTranscript((int)data.get("transcriptId"), user.getId());
+			    		message.setType(MessageType.PULL_TRANSCRIPT);
+			    	}
+					
+					break;
+				case "JUMP_TRANSCRIPT" :
+			    	
+			    	rs = roomService.jumpTranscript((int) data.get("transcriptId"), (int) data.get("index"), user.getId());
+			    	if(rs) {
+			    		roomService.removeEditingRoomTranscript((int)data.get("transcriptId"), user.getId());
+			    		message.setType(MessageType.PULL_TRANSCRIPT);
+			    	}
+					
+					break;
+	
+				default:
+					break;
+				}
+  	    	  
+  	    	this.template.convertAndSend("/topic/"+(int)data.get("roomId"), message);
+  	      }
+  	    
+      return chatMessage;
+  }
 
 }

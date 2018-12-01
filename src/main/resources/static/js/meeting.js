@@ -4,15 +4,45 @@ $(document).ready(function(){
 	getRoomInfor(roomID);
 	getRoomContent();
 	setPersmisson();
-	//--------
-	
-	//-------------
+	var url = "/api/room/upload/" + roomID;
+	$("#formupfile").attr("action",url);
+
+// uploadfile -------------
+
+$("#formupfile").submit(function(evt){	 
+	evt.preventDefault();
+	var formData = new FormData($(this)[0]);
+	$.ajax({
+		url: url,
+		type: 'POST',
+		data: formData,
+		async: false,
+		cache: false,
+		contentType: false,
+		enctype: 'multipart/form-data',
+		processData: false,
+		success: function (response) {
+			
+			$('#popUploadFile').modal('hide');
+			var code = response.code;
+			if(code == 0){
+				var fileSaveId = parseInt(response.data.id);
+				sendFile(fileSaveId);
+			}
+		}
+	});
+	return false;
+});
+
+// -----------
 
 
-	
 	// connet chat serve
 	connect();
 });
+
+
+
 
 liSpeakerClick =  function(){
 
@@ -183,7 +213,7 @@ var listObject = [];
 var lstReporters = [];
 var indexOfReporter = 1; // chi so cac reporter da them vao
 addReporter = function(){
-	var usrID =  $("#selectreporter").chosen().val();
+	var usrID =  parseInt($("#selectreporter").chosen().val());
 	lstReporters.push({userId: usrID, roles: $("#selectreporterpermission").chosen().val() });
 	var idRp = "reporter_" + $("#selectreporter").chosen().val();
 	var name = $("#selectreporter option:selected").text()
@@ -256,17 +286,32 @@ getRoomContent = function(){
 			var code = response.code;
 			if(code == 0){
 				var listContent = response.data;
+				console.log(listContent);
 				for(var i = 0; i< listContent.length; i++){
 					var content = listContent[i];
 					var message = content.content;
-					var firstname = content.speaker.firstName;
-					var lastname =  content.speaker.lastName;
-					var starttime = getTimeShow(new Date(content.startTime));
-					var endtime = getTimeShow(new Date(content.endTime));
+					var speakerInfo = content.speaker;
+					var firstname ="";
+					var lastname = "";
+					
+					if(speakerInfo != null){
+						firstname = content.speaker.firstName;
+						lastname =  content.speaker.lastName;
+					}
+					var starttime ="";
+					if(content.startTime != null){
+						starttime = getTimeShow(new Date(content.startTime));
+					}
+
+					var endtime ="";
+					if(content.endTime != null){
+						endtime = getTimeShow(new Date(content.endTime));
+					}
+					var createdDTG = getTimeShow(new Date(content.created));
 					var rpFirstName = content.reporter.firstName;
 					var rpLastName = content.reporter.lastName;
-					var rpUserName = content.reporter.userName;
-					reciveMessage(message,firstname,lastname,starttime,endtime,rpFirstName,rpLastName,rpUserName);
+					var rpUserName = content.reporter.username;
+					reciveMessage(message,firstname,lastname,starttime,endtime,rpFirstName,rpLastName,rpUserName,createdDTG);
 				}
 
 			}else {
@@ -280,12 +325,251 @@ getRoomContent = function(){
 	});
 }
 
+// ------------------------------------- get room transcript merge ---------------------------
+
+loadDatToPopTranscriptMerge = function(){
+	getRoomTranscript();
+}
+
+
+getRoomTranscript = function(){
+	var roomid = GetURLParameter('roomID');
+	var objectReq = {roomId : parseInt(roomid)};
+	$.ajax({
+		url:'/api/room/get-room-transcripts',
+		type:'post',
+		contentType:'application/json',
+		dataType: 'json',
+		data: JSON.stringify(objectReq),
+		success: function(response){
+			var code = response.code;
+			if(code == 0){
+				var listTranscript = response.data;
+				$('.lstMessageMerge').children().remove().end(); 
+				for (var i = 0; i < listTranscript.length; i++) {
+					var transcript = listTranscript[i];
+					var edited = transcript.edited;
+					var fullname = transcript.speaker.firstName +" " + transcript.speaker.lastName;
+					var id = transcript.id;
+					var starttime = getTimeShow(new Date(transcript.start));
+					var endtime = getTimeShow(new Date(transcript.end));
+					var time  = starttime +" - " + endtime;
+					var content = transcript.content;
+					var userupdate = transcript.editingByUser;
+					var nameUserUpdate = "";
+					if(userupdate != null){
+						nameUserUpdate = userupdate.firstName +" " + userupdate.lastName;
+					}
+
+					addTranscript(content,fullname,time, id,nameUserUpdate);
+				}
+
+			}else {
+				console.log("Faild");
+				return false;
+			}
+		},
+		error: function () {
+			console.log("Server error");
+		}
+	});
+}
+
+addHistoryItem = function(time, content, updatedBy){
+	var historyItem = document.createElement('div');
+	historyItem.classList.add('historyitem');
+
+	var contentHistory = document.createElement('div');
+	contentHistory.classList.add('contentHistory');
+	var time = document.createElement('span');
+	var timeText = "("+ time + ")" ;
+	var timeTextNode= document.createTextNode(timeText);
+	time.appendChild(timeTextNode);
+	contentHistory.appendChild(time);
+
+	var userupdate = document.createElement('span');
+	var text = "Updated by " + updatedBy;
+	var userupdateTextNode= document.createTextNode(text);
+	userupdate.appendChild(userupdateTextNode);
+	userupdate.style['font-style'] = 'italic';
+	contentHistory.appendChild(userupdate);
+
+	var contentUpdate = document.createElement('p');
+	var contentTextNode = document.createTextNode(content);
+	contentUpdate.appendChild(contentTextNode);
+	contentHistory.appendChild(contentUpdate);
+
+	// -- button undo
+	var undoElement = document.createElement('div');
+	var buttonElement = document.createElement('button');
+	buttonElement.setAttribute("type","button");
+	buttonElement.style['border'] = 'none';
+	buttonElement.style['background'] = 'none';
+	var iconElement = document.createElement('i');
+	iconElement.setAttribute('class','fa fa-reply');
+	iconElement.setAttribute('aria-hidden','true');
+	buttonElement.appendChild(iconElement);
+	undoElement.appendChild(buttonElement);
+	historyItem.appendChild(contentHistory);
+	historyItem.appendChild(undoElement);
+	var historyArea = document.querySelector('.listHistory');
+	historyArea.appendChild(historyItem);
+}
+
+addTranscript = function(message, fullName, time, id, nameUserUpdate){
+	
+	var lstFullNameSplit = fullName.split(" ");
+	var nameDisplay = "";
+	var lstMessage = $(".lstMessage");
+	for(var i=0; i< lstFullNameSplit.length -1 ; i++){
+		nameDisplay += lstFullNameSplit[i].charAt(0);
+	}
+	nameDisplay+="."+lstFullNameSplit[lstFullNameSplit.length - 1];
+	var currentDate = time;
+	var messageElement = document.createElement('li');
+	messageElement.classList.add('message');
+	var avatarElement = document.createElement('i');
+	var avatarText = document.createTextNode(lstFullNameSplit[lstFullNameSplit.length - 1][0]);
+	avatarElement.appendChild(avatarText);
+	avatarElement.style['background-color'] = getAvatarColor(fullName);
+	messageElement.appendChild(avatarElement);
+	var usernameElement = document.createElement('span');
+	var usernameText = document.createTextNode(nameDisplay);
+	usernameElement.appendChild(usernameText);
+	usernameElement.style['font-weight'] = 'bold';
+	messageElement.appendChild(usernameElement);
+	var timeElement= document.createElement('span');
+	var timeText = document.createTextNode(currentDate);
+	timeElement.appendChild(timeText);
+	timeElement.style['margin-left'] ='25px';
+	timeElement.style['font-style'] ='italic';
+	messageElement.appendChild(timeElement);
+	var textElement = document.createElement('textarea');
+	var functionNameEdit = "loadDataToPopupShowEdit(" +id +",'"+ message +"')";
+	console.log(functionNameEdit);
+	textElement.setAttribute('onfocus',functionNameEdit);
+	var functionNameRemoveEdit = "removeEditing("+id+")";
+	// textElement.setAttribute('onblur',functionNameRemoveEdit);
+	var spanNotifi = document.createElement('h6');
+	var textnameuserupdate ="";
+	if(nameUserUpdate.trim().length > 0){
+		textnameuserupdate = nameUserUpdate +" is editting .....";
+	}
+	
+	var spanNotifiText= document.createTextNode(textnameuserupdate);
+	spanNotifi.appendChild(spanNotifiText);
+
+
+	var messageText = document.createTextNode(message);
+	var icondelete = document.createElement('i');
+	var iconsave = document.createElement('i');
+	var iconhistory = document.createElement('i');
+	icondelete.setAttribute("class","fa fa-trash-o");
+	icondelete.style['color']='red';
+	icondelete.style['left']='unset';
+	icondelete.style['cursor']='-webkit-grab';
+	icondelete.setAttribute("aria-hidden","true");
+	icondelete.setAttribute("onclick","onclickDelelte()");
+	
+	iconsave.setAttribute("class","fa fa-floppy-o");
+	iconsave.style['color']='#4cae4c';
+	iconsave.style['left']='unset';
+	iconsave.style['cursor']='-webkit-grab';
+	iconsave.style['margin-left']='20px';
+	iconsave.setAttribute("aria-hidden","true");
+	iconsave.setAttribute("onclick","onclickSave()");
+	
+	iconhistory.setAttribute("class","fa fa-history");
+	iconhistory.style['color']='black';
+	iconhistory.style['left']='unset';
+	iconhistory.style['cursor']='-webkit-grab';
+	iconhistory.style['margin-left']='42px';
+	iconhistory.setAttribute("aria-hidden","true");
+	iconhistory.setAttribute("onclick","onclickShowPopup(" +id + ")");
+	
+	textElement.appendChild(messageText);
+	textElement.setAttribute("class","form-control");
+	textElement.style['display']='inline-block';
+	textElement.style['width']='90%';
+	messageElement.appendChild(textElement);
+	messageElement.appendChild(spanNotifi);
+	messageElement.appendChild(icondelete);
+	messageElement.appendChild(iconsave);
+	messageElement.appendChild(iconhistory);
+	var messageArea = document.querySelector('.lstMessageMerge');
+	messageArea.appendChild(messageElement);
+	messageArea.scrollTop = messageArea.scrollHeight;
+}
+
+onclickShowPopup = function(id){
+	$("#popHistory").modal('show');
+	loadDataToPopupHistory(id);
+}
+
+loadDataToPopupShowEdit = function(id, message){
+	$("#hidTranscriptID").val(id);
+	$("#popShowEdit").modal('show');
+	editingTranscript(id);
+	$("#areTranscript").val(message);
+}
+
+removeEditingTranscript = function(){
+	var id = parseInt($("#hidTranscriptID").val());
+	removeEditing(id);
+
+}
+
+saveEditTranscript = function(){
+	var transcriptId = parseInt($("#hidTranscriptID").val());
+	var roomID = parseInt(GetURLParameter("roomID"));
+	var content = $("#areTranscript").val();
+	saveEditTranscripModifi(transcriptId,content,roomID);
+	$("#popShowEdit").modal('hide');
+
+}
+
+loadDataToPopupHistory = function(id){
+	var roomid = GetURLParameter('roomID');
+	var transcriptId = parseInt(id);
+	var objectReq = {roomId : parseInt(roomid), transcriptId: transcriptId };
+	$.ajax({
+		url:'/api/room/get-history-transcripts',
+		type:'post',
+		contentType:'application/json',
+		dataType: 'json',
+		data: JSON.stringify(objectReq),
+		success: function(response){
+			var code = response.code;
+			if(code == 0){
+				var listTranscriptHistory = response.data;
+
+				for (var i = 0; i < listTranscriptHistory.length; i++) {
+					var item = listTranscriptHistory[i];
+					var time = getTimeShow(new Date(item.updatedDTG));
+					var content = item.content;
+					var updateBy = item.updateBy.firstName + " " + item.updateBy.lastName;
+					addHistoryItem(time, content,updateBy);
+				}
+
+			}else {
+				console.log("Faild");
+				return false;
+			}
+		},
+		error: function () {
+			console.log("Server error");
+		}
+	});
+}
+
+// --------------------------------------------------------
+
 addListUser = function(){
 	addListSpeaker();
 }
 
 addListReporter = function(){
-	var roomID = GetURLParameter("roomID");
+	var roomID = parseInt(GetURLParameter("roomID"));
 	var objectReq = {roomId: roomID, members:lstReporters};
 	$.ajax({
 		url:'/api/room/add-members',
@@ -545,6 +829,12 @@ lstUserIDRemoved= [];
  				var usrname_login = getCookiebyName("username");
  				if(own != usrname_login){
  					$("#btn_finish_room").css("display","none");
+ 				}else{
+ 					var lstRolesName = [];
+ 					for (var j = 0; j < roleRooms.length; j++) {
+ 						lstRolesName.push(roleRooms[j].value);
+ 					}
+ 					document.cookie = "roles="+lstRolesName;
  				}
 
  				liSpeakerClick();
@@ -559,15 +849,19 @@ lstUserIDRemoved= [];
  }
 
  getTimeShow = function(time){
- 	
- 	var day = addZero(time.getDate());
- 	var month = addZero(time.getMonth()+1);
- 	var year = addZero(time.getFullYear());
- 	var h = addZero(time.getHours());
- 	var m = addZero(time.getMinutes());
- 	var s = addZero(time.getSeconds());
- 	return day + ". " + month + ". " + year + " (" + h + ":" + m + ":" + s +")";
+ 	if(time != null){
+ 		var day = addZero(time.getDate());
+ 		var month = addZero(time.getMonth()+1);
+ 		var year = addZero(time.getFullYear());
+ 		var h = addZero(time.getHours());
+ 		var m = addZero(time.getMinutes());
+ 		var s = addZero(time.getSeconds());
+ 		return day + ". " + month + ". " + year + " (" + h + ":" + m + ":" + s +")";
+ 	}else{
+ 		return "";
+ 	}
  }
+
 
  // kết thúc cuộc họp
  finishMeeting = function(){
@@ -666,6 +960,79 @@ function sendMessage() {
 	}
 }
 
+function sendFile(fileSaveId) {
+	
+	var roomID = parseInt(GetURLParameter("roomID"));
+	
+	if(roomID && stompClient) {
+		var chatMessage = {
+			data: {
+				roomId: roomID,
+				fileSaveId: fileSaveId
+			},
+			type: 'ADD_FILE'
+		};
+
+		stompClient.send("/app/chat.sendFile", {}, JSON.stringify(chatMessage));
+	}
+}
+
+var id_transcript_focus = '';
+function editingTranscript(id) {
+	
+	
+	var roomID = parseInt(GetURLParameter("roomID"));
+	var transcriptId = parseInt(id);
+	id_transcript_focus = transcriptId;
+	
+	if(transcriptId && stompClient) {
+		var chatMessage = {
+			data: {
+				roomId: roomID,
+				transcriptId: transcriptId
+			},
+			type: 'EDITING'
+		};
+
+		stompClient.send("/app/chat.notify", {}, JSON.stringify(chatMessage));
+	}
+}
+
+function removeEditing(id) {
+	
+	
+	var roomID = parseInt(GetURLParameter("roomID"));
+	var transcriptId = parseInt(id);
+	
+	if(transcriptId && stompClient) {
+		var chatMessage = {
+			data: {
+				roomId: roomID,
+				transcriptId: transcriptId
+			},
+			type: 'REMOVE_EDITING'
+		};
+
+		stompClient.send("/app/chat.notify", {}, JSON.stringify(chatMessage));
+	}
+}
+
+function saveEditTranscripModifi(transcriptId,content,roomId) {
+	
+	if(transcriptId && stompClient) {
+		var chatMessage = {
+			data: {
+				roomId: roomId,
+				transcriptId: transcriptId,
+				content:content
+			},
+			type: 'EDIT'
+		};
+
+		stompClient.send("/app/chat.notify", {}, JSON.stringify(chatMessage));
+	}
+}
+
 function onMessageReceived(payload) {
 	console.log(payload);
 	var message = JSON.parse(payload.body);
@@ -680,25 +1047,53 @@ function onMessageReceived(payload) {
 		var rpFirstName = reporter.firstName;
 		var rpLastName = reporter.lastName;
 		var rpUserName = reporter.userName;
-		reciveMessage(content,firstname_spk, lastname_spk, starttime, endtime,rpFirstName,rpLastName,rpUserName);  
-	} 
+		var createdDTG = "";
+		reciveMessage(content,firstname_spk, lastname_spk, starttime, endtime,rpFirstName,rpLastName,rpUserName,createdDTG);  
+	}else if(message.type === 'ADD_FILE'){
+		var content1 = message.data.newFile.name;
+		var createdDTG = parseInt(message.data.newFile.CreatedDTG);
+		var rpFirstName = message.data.user.firstName;
+		var rpLastName = message.data.user.lastName;
+		var rpUserName = message.data.user.username;
+		reciveMessage(content1,"", "", "", "",rpFirstName,rpLastName,rpUserName,createdDTG);  
+	}else if(message.type ==='PULL_TRANSCRIPT'){
+		getRoomTranscript();
+
+	}
 }
 
-reciveMessage = function(message, firstname, lastname, starttime, endtime, rpFirstName, rpLastName, rpUserName){
+reciveMessage = function(message, firstname, lastname, starttime, endtime, rpFirstName, rpLastName, rpUserName,createdDTG){
 	
 	if (message.trim().length > 0) {
 		var fullName = firstname +" " + lastname;
-		var lstFullNameSplit = fullName.split(" ");
-		var nameDisplay = "";
-		for(var i=0; i< lstFullNameSplit.length -1 ; i++){
-			nameDisplay += lstFullNameSplit[i].charAt(0);
+		var lstFullNameSplit = [];
+		if (fullName.trim().length > 0) {
+			lstFullNameSplit = fullName.split(" ");
+			var nameDisplay = "";
+			for(var i=0; i< lstFullNameSplit.length -1 ; i++){
+				nameDisplay += lstFullNameSplit[i].charAt(0);
+			}
+			nameDisplay+="."+lstFullNameSplit[lstFullNameSplit.length - 1];
+		}else{
+			nameDisplay = "Upload file";
 		}
-		nameDisplay+="."+lstFullNameSplit[lstFullNameSplit.length - 1];
-		var currentDate = starttime +" - "+ endtime;
+		var currentDate = '';
+		if(endtime.length > 0){
+			currentDate = starttime +" - "+ endtime;
+		}else{
+			currentDate = createdDTG;
+		}
+		
 		var messageElement = document.createElement('li');
 		messageElement.classList.add('message');
 		var avatarElement = document.createElement('i');
-		var avatarText = document.createTextNode(lstFullNameSplit[lstFullNameSplit.length - 1][0]);
+		var avatarText = '';
+		if (lstFullNameSplit.length > 0) {
+			avatarText = document.createTextNode(lstFullNameSplit[lstFullNameSplit.length - 1][0]);
+		}else{
+			avatarText = document.createTextNode("UF");
+		}
+		
 		avatarElement.appendChild(avatarText);
 		avatarElement.style['background-color'] = getAvatarColor(fullName);
 		messageElement.appendChild(avatarElement);
@@ -748,8 +1143,6 @@ setPersmisson = function(){
 	$("#message").addClass("per_WRITE");
 	$("#btn_send").addClass("displayhidden");
 	$("#btn_send").addClass("per_WRITE");
-
-
 
 }
 

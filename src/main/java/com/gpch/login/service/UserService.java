@@ -133,6 +133,8 @@ public class UserService{
 			}
 		}
 		
+		rooms.sort((t1, t2) -> (int)(((Timestamp)t1.get("createdDTG")).getTime() - ((Timestamp)t2.get("createdDTG")).getTime()));
+		
 		return rooms;
 	}
     

@@ -44,6 +44,9 @@ public class RoomSpeaker implements Serializable{
     @Column(name = "room_id")
     private int roomId;
     
+    @Column(name = "frequency")
+    private int frequency;
+    
     @Column(name = "created_by")
     private int createdBy;
     
@@ -102,6 +105,14 @@ public class RoomSpeaker implements Serializable{
 
 	public void setCreatedDTG(Timestamp createdDTG) {
 		this.createdDTG = createdDTG;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
 	}
 
 	public int getUpdatedBy() {

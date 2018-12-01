@@ -73,6 +73,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
       // Disable crsf cho đường dẫn /rest/**
       http.csrf().ignoringAntMatchers("/api/room/**");
       http.authorizeRequests().antMatchers("/api/login").permitAll();
+      http.authorizeRequests().antMatchers("/report/**").permitAll();
+      
       http.authorizeRequests().antMatchers("/login").permitAll();
       http.antMatcher("/room/**").httpBasic().authenticationEntryPoint(restServicesEntryPoint()).and()
           .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()

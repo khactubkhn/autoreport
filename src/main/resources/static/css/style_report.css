@@ -1,0 +1,26 @@
+h1 {
+    color: blue;
+    font-size: 18px;
+    margin-bottom: 40px;
+    margin-top: 40px;
+}
+
+@page {
+
+    margin-top: 3.3cm;
+    margin-left: 2cm;
+    margin-right: 2cm;
+    margin-bottom: 3.3cm;
+
+    size: A4 portrait;
+}
+
+@font-face {
+    font-family: "IPAGothic";
+    src: url("time.ttf");
+    -fs-pdf-font-embed: embed;
+    -fs-pdf-font-encoding: Identity-H;
+}
+body {
+    font-family: "IPAGothic";
+}
